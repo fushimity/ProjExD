@@ -1,5 +1,14 @@
 import tkinter as tk
 
+def key_down(event):
+    global key
+    key = event.keysym
+
+
+def key_up(event):
+    global key
+    key = ""
+
 
 if __name__ == "__main__":
     root = tk.Tk()
@@ -10,4 +19,6 @@ if __name__ == "__main__":
     tori = tk.PhotoImage(file="fig/8.png")
     canvas.create_image(cx, cy, image=tori, tag="kokaton")
     key = ""
+    root.bind("<KeyPress>", key_down)
+    root.bind("<KeyRelease>", key_up)
     root.mainloop()
