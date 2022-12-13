@@ -78,6 +78,11 @@ def main():
         yoko, tate = check_bound(bomb_rct, scrn_rct)
         vx *= yoko
         vy *= tate
+
+        # 練習８
+        if tori_rct.colliderect(bomb_rct):
+            return
+
         pg.display.update()
         clock.tick(1000)
 
