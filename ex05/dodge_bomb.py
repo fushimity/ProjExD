@@ -1,6 +1,10 @@
 import pygame as pg
+import os
 import random
 import sys
+
+
+main_dir = os.path.split(os.path.abspath(__file__))[0]
 
 
 class Screen:
@@ -79,7 +83,34 @@ def check_bound(obj_rct, scr_rct):
     return yoko, tate
 
 
+def load_sound(file):
+    """because pygame can be be compiled without mixer."""
+    if not pg.mixer:
+        return None
+    file = os.path.join(main_dir, "data", file)
+    try:
+        sound = pg.mixer.Sound(file)
+        return sound
+    except pg.error:
+        print("Warning, unable to load, %s" % file)
+    return None
+
+
 def main():
+    if pg.get_sdl_version()[0] == 2:
+        pg.mixer.pre_init(44100, 32, 2, 1024)
+    pg.init()
+    if pg.mixer and not pg.mixer.get_init():
+        print("Warning, no sound")
+        pg.mixer = None
+
+    boom_sound = load_sound("boom.wav")
+    shoot_sound = load_sound("car_door.wav")
+    if pg.mixer:
+        music = os.path.join(main_dir, "data", "house_lo.wav")
+        pg.mixer.music.load(music)
+        pg.mixer.music.play(-1)
+
     clock =pg.time.Clock()
 
     # 練習１
@@ -90,8 +121,12 @@ def main():
     kkt.update(scr)
 
     # 練習５
-    bkd = Bomb((255, 0, 0), 10, (+1, +1), scr)
-    bkd.update(scr)
+    bkd_lst = []
+    color_lst = ["red", "green", "blue", "yellow", "magenta"]
+    for i in range(20):
+        bkd = Bomb(color_lst[i%5], 10, (random.choice(range(-2, 3)), random.choice(range(-2, 3))), scr)
+        bkd_lst.append(bkd)
+    # bkd.update(scr)
 
     # 練習２
     while True:        
@@ -102,13 +137,14 @@ def main():
                 return
 
         kkt.update(scr)
-        bkd.update(scr)
-        if kkt.rct.colliderect(bkd.rct):
-            return
+        for i in range(len(bkd_lst)):
+            bkd_lst[i].update(scr)
+            if kkt.rct.colliderect(bkd_lst[i].rct):
+                return
 
         pg.display.update()
         clock.tick(1000)
-
+    
 
 if __name__ == "__main__":
     pg.init()
